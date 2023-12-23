@@ -9,7 +9,7 @@ import {
 import {useAntMedia, rtc_view} from '@antmedia/react-native-ant-media';
 
 function LiveStreamViewerPage(): React.JSX.Element {
-  var defaultStreamName = 'BrQxZ6ayHHiq2ZrD1703091170694';
+  var defaultStreamName = 'RUCGrCM3Hx2UAlwZ1703317461348';
   const webSocketUrl = 'ws://3.110.166.108:5080/WebRTCAppEE/websocket';
 
   const streamNameRef = useRef<string>(defaultStreamName);
