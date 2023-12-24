@@ -8,9 +8,10 @@ import {
 } from 'react-native';
 import {useAntMedia, rtc_view} from '@antmedia/react-native-ant-media';
 
-function LiveStreamViewerPage(): React.JSX.Element {
+function LiveStreamViewerPage({ route, navigation }: any): React.JSX.Element {
+  const paramsValue = route.params;
   var defaultStreamName = 'RUCGrCM3Hx2UAlwZ1703317461348';
-  const webSocketUrl = 'ws://3.110.166.108:5080/WebRTCAppEE/websocket';
+  const webSocketUrl = 'wss://3.110.166.108:5080/WebRTCAppEE/websocket';
 
   const streamNameRef = useRef<string>(defaultStreamName);
   const [remoteMedia, setRemoteStream] = useState<string>('');
@@ -68,7 +69,6 @@ function LiveStreamViewerPage(): React.JSX.Element {
             ? adaptor.remoteStreams[i].toURL()
             : null;
         console.log('st>>>>>>>>', st);
-        //     setRemoteStream(st || '');
         break;
       }
     }
