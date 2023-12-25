@@ -1,24 +1,71 @@
 import React, {useCallback, useRef, useState, useEffect} from 'react';
-import {
-  StyleSheet,
-  View,
-  SafeAreaView,
-  TouchableOpacity,
-  Text,
-} from 'react-native';
+import {StyleSheet, View, SafeAreaView, TouchableOpacity} from 'react-native';
 import {useAntMedia, rtc_view} from '@antmedia/react-native-ant-media';
+import {Button, Text} from 'react-native-paper';
+import {DeleteApiMethod, PostApiMethod} from '../utils/AxiosHelper';
+import AppSnackbar from '../components/AppSnackbar';
 
-function LiveStreamViewerPage({ route, navigation }: any): React.JSX.Element {
+function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
   const paramsValue = route.params;
-  var defaultStreamName = 'RUCGrCM3Hx2UAlwZ1703317461348';
-  const webSocketUrl = 'wss://3.110.166.108:5080/WebRTCAppEE/websocket';
+  var defaultStreamName = paramsValue?.streamId ? paramsValue?.streamId : '';
 
   const streamNameRef = useRef<string>(defaultStreamName);
   const [remoteMedia, setRemoteStream] = useState<string>('');
   const [isPlaying, setIsPlaying] = useState(false);
+  const [snackDetails, setSnackDetails] = React.useState<{
+    show: boolean;
+    content: string;
+  }>({show: false, content: ''});
+
+  React.useEffect(() => {
+    console.log('paramsValue>>>', paramsValue);
+  }, [paramsValue]);
+
+  const deleteStream = React.useCallback(() => {
+    if (paramsValue?.streamId) {
+      DeleteApiMethod(
+        'request?_path=WebRTCAppEE/rest/v2/broadcasts/' + paramsValue?.streamId,
+      )
+        .then(response => {
+          navigation.navigate('LiveStreamListPage', response.data);
+        })
+        .catch(function (error: any) {
+          setSnackDetails({
+            ...{
+              show: true,
+              content: `Fail to delete ${paramsValue?.streamId} - live stream`,
+            },
+          });
+          console.log(error.message);
+        });
+    }
+  }, [paramsValue, navigation]);
+
+  const startBroadCast = React.useCallback(() => {
+    if (paramsValue?.streamId) {
+      PostApiMethod(
+        `request?_path=WebRTCAppEE/rest/v2/broadcasts/${paramsValue?.streamId}/start`,
+        {},
+      )
+        .then(response => {
+          navigation.navigate('LiveStreamListPage', response.data);
+        })
+        .catch(function (error: any) {
+          setSnackDetails({
+            ...{
+              show: true,
+              content: `Fail to start ${paramsValue?.streamId} - broadcast`,
+            },
+          });
+          console.log(error.message);
+        });
+    }
+  }, [paramsValue, navigation]);
 
   const adaptor = useAntMedia({
-    url: webSocketUrl,
+    url: process.env.REACT_APP_WEBSOCKET_URL
+      ? process.env.REACT_APP_WEBSOCKET_URL
+      : '',
     mediaConstraints: {
       audio: true,
       video: {
@@ -78,7 +125,7 @@ function LiveStreamViewerPage({ route, navigation }: any): React.JSX.Element {
     if (!adaptor) {
       return;
     }
-
+    console.log(streamNameRef.current);
     adaptor.play(streamNameRef.current);
   }, [adaptor]);
 
@@ -92,7 +139,52 @@ function LiveStreamViewerPage({ route, navigation }: any): React.JSX.Element {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.box}>
-        <Text style={styles.heading}>Ant Media WebRTC Play</Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            paddingHorizontal: 30,
+            paddingTop: 10,
+          }}>
+          <Button icon="delete" mode="text" onPress={() => deleteStream()}>
+            Delete
+          </Button>
+          <Button
+            icon={paramsValue?.status === 'broadcasting' ? 'stop' : 'play'}
+            mode="text"
+            onPress={() =>
+              paramsValue?.status === 'broadcasting'
+                ? console.log('test')
+                : startBroadCast()
+            }>
+            {paramsValue?.status === 'broadcasting'
+              ? 'Stop Broadcast'
+              : 'Start Broadcast'}
+          </Button>
+        </View>
+        {paramsValue?.status === 'broadcasting' && (
+          <Button icon="youtube" mode="text" onPress={() => deleteStream()}>
+            {paramsValue?.endPointList && paramsValue?.endPointList.length
+              ? 'Stop YouTube Live'
+              : 'Start YouTube Live'}
+          </Button>
+        )}
+
+        {paramsValue?.name && paramsValue?.streamId && paramsValue?.status ? (
+          <>
+            <Text variant="titleLarge" style={styles.heading}>
+              {paramsValue?.name}
+            </Text>
+            <Text variant="titleMedium" style={styles.heading}>
+              StreamId: {paramsValue?.streamId}
+            </Text>
+            <Text variant="titleSmall" style={styles.heading}>
+              Status:{' '}
+              {paramsValue?.status === 'broadcasting'
+                ? 'Broadcasting'
+                : 'Offline'}
+            </Text>
+          </>
+        ) : null}
         {!isPlaying ? (
           <>
             <TouchableOpacity onPress={handlePlay} style={styles.startButton}>
@@ -112,6 +204,18 @@ function LiveStreamViewerPage({ route, navigation }: any): React.JSX.Element {
           </>
         )}
       </View>
+      <AppSnackbar
+        showSnackBar={snackDetails.show}
+        snackBarContent={snackDetails.content}
+        dismissSnack={() => {
+          setSnackDetails({
+            ...{
+              show: false,
+              content: '',
+            },
+          });
+        }}
+      />
     </SafeAreaView>
   );
 }
@@ -127,7 +231,7 @@ const styles = StyleSheet.create({
   box: {
     alignSelf: 'center',
     width: '80%',
-    height: '80%',
+    height: '100%',
   },
   streamPlayer: {
     width: '100%',

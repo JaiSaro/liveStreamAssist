@@ -51,13 +51,13 @@ function LiveStreamPublishPage({navigation}: any): React.JSX.Element {
 
   return (
     <>
-      <ScrollView style={{margin: 20}} showsHorizontalScrollIndicator={false}>
+      <ScrollView style={{margin: 25}} showsHorizontalScrollIndicator={false}>
         <Text variant="headlineSmall">Publish Stream!</Text>
-        <Text variant="labelLarge" style={{marginTop: 10}}>
+        <Text variant="labelLarge" style={{marginTop: 10, alignSelf: 'center'}}>
           Enter your RTSP link, Stream Id, Stream Name
         </Text>
-        <View>
-          {/* <Chip
+        {/* <View>
+          <Chip
             onPress={() => {
               setIsWebRTCStream(!isWebRTCStream);
             }}
@@ -72,9 +72,9 @@ function LiveStreamPublishPage({navigation}: any): React.JSX.Element {
             style={{marginRight: 8}}
             selected={isYouTubeStream}>
             Youtube Live
-          </Chip> */}
+          </Chip>
         </View>
-        <Divider />
+        <Divider /> */}
         <TextInput
           style={{margin: 15}}
           label="rtsp://url"

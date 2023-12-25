@@ -62,11 +62,21 @@ function LiveStreamListPage({route, navigation}: any) {
           <List.Subheader>WebRTCAppEE Stream List</List.Subheader>
           {streamList.map(streamData => (
             <List.Item
-              key={'StreamId-' + streamData.streamId}
-              title={streamData.name}
+              key={'StreamId-' + streamData?.streamId}
+              title={streamData?.name}
               style={{marginLeft: 30}}
-              description={'StreamId: ' + streamData.streamId}
+              description={'StreamId: ' + streamData?.streamId}
               left={() => <List.Icon icon="video" />}
+              right={() => (
+                <>
+                  <Text variant="bodySmall">
+                    Status:{' '}
+                    {streamData?.status === 'broadcasting'
+                      ? 'Broadcasting'
+                      : 'Offline'}
+                  </Text>
+                </>
+              )}
               onPress={() =>
                 navigation.navigate('LiveStreamViewerPage', streamData)
               }
