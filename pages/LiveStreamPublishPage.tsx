@@ -1,31 +1,63 @@
 import React from 'react';
-import {View} from 'react-native';
-import {
-  Text,
-  Divider,
-  Chip,
-  TextInput,
-  Button,
-  Snackbar,
-} from 'react-native-paper';
+import {View, ScrollView} from 'react-native';
+// import {Text, Divider, Chip, TextInput, Button} from 'react-native-paper';
+import {Text, Divider, TextInput, Button} from 'react-native-paper';
+import {PostApiMethod} from '../utils/AxiosHelper';
+import AppSnackbar from '../components/AppSnackbar';
 
-function LiveStreamPublishPage(): React.JSX.Element {
-  const [isWebRTCStream, setIsWebRTCStream] = React.useState(false);
-  const [isYouTubeStream, setIsYoutubeStream] = React.useState(false);
-  const [showSnack, setShowSnack] = React.useState(false);
+function LiveStreamPublishPage({navigation}: any): React.JSX.Element {
+  // const [isWebRTCStream, setIsWebRTCStream] = React.useState(true);
+  // const [isYouTubeStream, setIsYoutubeStream] = React.useState(false);
+  const [snackDetails, setSnackDetails] = React.useState<{
+    show: boolean;
+    content: string;
+  }>({show: false, content: ''});
+  const [streamUrl, setStreamUrl] = React.useState('');
+  const [streamId, setStreamId] = React.useState('');
+  const [streamName, setStreamName] = React.useState('');
+  // const [youTubeLiveStreamUrl, setYouTubeLiveStreamUrl] = React.useState('');
+  // const [youTubeLiveUrl, setYouTubeLiveUrl] = React.useState('');
 
-  const publishStream = React.useCallback(() => {}, []);
+  const publishStream = React.useCallback(() => {
+    PostApiMethod('request?_path=WebRTCAppEE/rest/v2/broadcasts/create', {
+      hlsViewerCount: 0,
+      dashViewerCount: 0,
+      webRTCViewerCount: 0,
+      rtmpViewerCount: 0,
+      mp4Enabled: 0,
+      playlistLoopEnabled: true,
+      playListItemList: [],
+      streamUrl: streamUrl,
+      streamId: streamId,
+      name: streamName,
+      type: 'streamSource',
+      publishType: 'WebRTC',
+      status: 'broadcasting',
+      playListStatus: 'broadcasting',
+    })
+      .then(response => {
+        navigation.navigate('LiveStreamListPage', response.data);
+      })
+      .catch(function (error: any) {
+        setSnackDetails({
+          ...{
+            show: true,
+            content: 'Fail to create AntMedia live stream list',
+          },
+        });
+        console.log(error.message);
+      });
+  }, [streamUrl, streamId, streamName, navigation]);
 
   return (
     <>
-      <View style={{margin: 20}}>
+      <ScrollView style={{margin: 20}} showsHorizontalScrollIndicator={false}>
         <Text variant="headlineSmall">Publish Stream!</Text>
-        <Text variant="labelLarge">
-          Enter your rtsp link and choose the viewer option.
+        <Text variant="labelLarge" style={{marginTop: 10}}>
+          Enter your RTSP link, Stream Id, Stream Name
         </Text>
-        <Divider />
         <View>
-          <Chip
+          {/* <Chip
             onPress={() => {
               setIsWebRTCStream(!isWebRTCStream);
             }}
@@ -40,10 +72,49 @@ function LiveStreamPublishPage(): React.JSX.Element {
             style={{marginRight: 8}}
             selected={isYouTubeStream}>
             Youtube Live
-          </Chip>
+          </Chip> */}
         </View>
         <Divider />
-        <TextInput style={{margin: 15}} label="rtsp://link" mode="outlined" />
+        <TextInput
+          style={{margin: 15}}
+          label="rtsp://url"
+          mode="outlined"
+          onChangeText={text => setStreamUrl(text)}
+        />
+        <TextInput
+          style={{margin: 15}}
+          label="Stream Name"
+          mode="outlined"
+          onChangeText={text => setStreamName(text)}
+        />
+        <TextInput
+          style={{margin: 15}}
+          label="Stream ID"
+          mode="outlined"
+          onChangeText={text => setStreamId(text)}
+        />
+        {/* {isYouTubeStream && (
+          <>
+            <Divider />
+            <Text
+              variant="titleMedium"
+              style={{alignContent: 'center', marginTop: 10}}>
+              YouTube Details
+            </Text>
+            <TextInput
+              style={{margin: 15}}
+              label="rtmp://youtubeLiveStreamUrl/key"
+              mode="outlined"
+              onChangeText={text => setYouTubeLiveStreamUrl(text)}
+            />
+            <TextInput
+              style={{margin: 15}}
+              label="YouTube Live Url"
+              mode="outlined"
+              onChangeText={text => setYouTubeLiveUrl(text)}
+            />
+          </>
+        )} */}
         <Button
           style={{margin: 15}}
           icon="send"
@@ -51,21 +122,19 @@ function LiveStreamPublishPage(): React.JSX.Element {
           onPress={publishStream}>
           Publish Stream
         </Button>
-      </View>
-      <Snackbar
-        visible={showSnack}
-        onDismiss={() => {
-          setShowSnack(!showSnack);
+      </ScrollView>
+      <AppSnackbar
+        showSnackBar={snackDetails.show}
+        snackBarContent={snackDetails.content}
+        dismissSnack={() => {
+          setSnackDetails({
+            ...{
+              show: false,
+              content: '',
+            },
+          });
         }}
-        action={{
-          label: 'Dismiss',
-          onPress: () => {
-            // Do side magic
-          },
-        }}
-        duration={Snackbar.DURATION_LONG}>
-        Stream Started to Publish!
-      </Snackbar>
+      />
     </>
   );
 }

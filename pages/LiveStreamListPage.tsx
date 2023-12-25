@@ -1,9 +1,10 @@
 import React from 'react';
-import {Button, List} from 'react-native-paper';
+import {Button, List, Text} from 'react-native-paper';
 import {GetApiMethod} from '../utils/AxiosHelper';
 import AppSnackbar from '../components/AppSnackbar';
 
-function LiveStreamListPage({navigation}: any) {
+function LiveStreamListPage({route, navigation}: any) {
+  const routeParamsValue = route.params;
   const [streamList, setStreamList] = React.useState<Array<any>>([]);
   const [snackDetails, setSnackDetails] = React.useState<{
     show: boolean;
@@ -31,8 +32,22 @@ function LiveStreamListPage({navigation}: any) {
   }, []);
 
   React.useEffect(() => {
+    if (routeParamsValue?.name && routeParamsValue?.streamId) {
+      setSnackDetails({
+        ...{
+          show: true,
+          content:
+            'AntMedia live stream list created successfully - ' +
+            routeParamsValue.name +
+            ' (' +
+            routeParamsValue.streamId +
+            ')',
+        },
+      });
+    }
     getStreamList();
-  }, [getStreamList]);
+  }, [routeParamsValue, getStreamList]);
+
   return (
     <>
       <Button
@@ -42,22 +57,27 @@ function LiveStreamListPage({navigation}: any) {
         onPress={() => navigation.navigate('LiveStreamPublishPage')}>
         New Live Stream
       </Button>
-
-      <List.Section>
-        <List.Subheader>WebRTCAppEE Stream List</List.Subheader>
-        {streamList.map(streamData => (
-          <List.Item
-            key={'StreamId-' + streamData.streamId}
-            title={streamData.name}
-            style={{marginLeft: 30}}
-            description={'StreamId: ' + streamData.streamId}
-            left={() => <List.Icon icon="video" />}
-            onPress={() =>
-              navigation.navigate('LiveStreamViewerPage', streamData)
-            }
-          />
-        ))}
-      </List.Section>
+      {streamList && streamList.length ? (
+        <List.Section>
+          <List.Subheader>WebRTCAppEE Stream List</List.Subheader>
+          {streamList.map(streamData => (
+            <List.Item
+              key={'StreamId-' + streamData.streamId}
+              title={streamData.name}
+              style={{marginLeft: 30}}
+              description={'StreamId: ' + streamData.streamId}
+              left={() => <List.Icon icon="video" />}
+              onPress={() =>
+                navigation.navigate('LiveStreamViewerPage', streamData)
+              }
+            />
+          ))}
+        </List.Section>
+      ) : (
+        <Text variant="titleMedium" style={{margin: 120}}>
+          No Live Stream
+        </Text>
+      )}
       <AppSnackbar
         showSnackBar={snackDetails.show}
         snackBarContent={snackDetails.content}
