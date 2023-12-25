@@ -59,6 +59,13 @@ function LiveStreamListPage({route, navigation}: any) {
       </Button>
       {streamList && streamList.length ? (
         <List.Section>
+          <Button
+            icon="refresh"
+            style={{marginHorizontal: 30}}
+            mode="text"
+            onPress={() => getStreamList()}>
+            Refresh List
+          </Button>
           <List.Subheader>WebRTCAppEE Stream List</List.Subheader>
           {streamList.map(streamData => (
             <List.Item

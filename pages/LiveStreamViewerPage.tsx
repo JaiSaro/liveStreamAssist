@@ -1,7 +1,14 @@
 import React, {useCallback, useRef, useState, useEffect} from 'react';
-import {StyleSheet, View, SafeAreaView, TouchableOpacity} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  SafeAreaView,
+  TouchableOpacity,
+  Modal,
+  TextInput,
+} from 'react-native';
 import {useAntMedia, rtc_view} from '@antmedia/react-native-ant-media';
-import {Button, Text} from 'react-native-paper';
+import {Button, Portal, Text} from 'react-native-paper';
 import {DeleteApiMethod, PostApiMethod} from '../utils/AxiosHelper';
 import AppSnackbar from '../components/AppSnackbar';
 
@@ -16,6 +23,11 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
     show: boolean;
     content: string;
   }>({show: false, content: ''});
+  const [visible, setVisible] = React.useState(false);
+  const [youTubeLiveUrl, setYouTubeLiveUrl] = React.useState('');
+  const showModal = () => setVisible(true);
+  const hideModal = () => setVisible(false);
+  const containerStyle = {backgroundColor: 'white', padding: 200};
 
   React.useEffect(() => {
     console.log('paramsValue>>>', paramsValue);
@@ -41,26 +53,33 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
     }
   }, [paramsValue, navigation]);
 
-  const startBroadCast = React.useCallback(() => {
-    if (paramsValue?.streamId) {
-      PostApiMethod(
-        `request?_path=WebRTCAppEE/rest/v2/broadcasts/${paramsValue?.streamId}/start`,
-        {},
-      )
-        .then(response => {
-          navigation.navigate('LiveStreamListPage', response.data);
-        })
-        .catch(function (error: any) {
-          setSnackDetails({
-            ...{
-              show: true,
-              content: `Fail to start ${paramsValue?.streamId} - broadcast`,
-            },
+  const startStopBroadCast = React.useCallback(
+    (isStart = true) => {
+      if (paramsValue?.streamId) {
+        PostApiMethod(
+          `request?_path=WebRTCAppEE/rest/v2/broadcasts/${
+            paramsValue?.streamId
+          }/${isStart ? 'start' : 'stop'}`,
+          {},
+        )
+          .then(response => {
+            navigation.navigate('LiveStreamListPage', response.data);
+          })
+          .catch(function (error: any) {
+            setSnackDetails({
+              ...{
+                show: true,
+                content: `Fail to ${isStart ? 'start' : 'stop'} ${
+                  paramsValue?.streamId
+                } - broadcast`,
+              },
+            });
+            console.log(error.message);
           });
-          console.log(error.message);
-        });
-    }
-  }, [paramsValue, navigation]);
+      }
+    },
+    [paramsValue, navigation],
+  );
 
   const adaptor = useAntMedia({
     url: process.env.REACT_APP_WEBSOCKET_URL
@@ -138,6 +157,22 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Portal>
+        <Modal
+          visible={visible}
+          onDismiss={hideModal}
+          contentContainerStyle={containerStyle}>
+          <Text variant="titleLarge" style={{alignSelf: 'center', paddingHorizontal: 20}}>
+            Add RTMP Endpoint
+          </Text>
+          <TextInput
+            style={{margin: 15}}
+            label="YouTube Live Url"
+            mode="outlined"
+            onChangeText={text => setYouTubeLiveUrl(text)}
+          />
+        </Modal>
+      </Portal>
       <View style={styles.box}>
         <View
           style={{
@@ -153,8 +188,8 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
             mode="text"
             onPress={() =>
               paramsValue?.status === 'broadcasting'
-                ? console.log('test')
-                : startBroadCast()
+                ? startStopBroadCast(false)
+                : startStopBroadCast()
             }>
             {paramsValue?.status === 'broadcasting'
               ? 'Stop Broadcast'
@@ -162,7 +197,7 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
           </Button>
         </View>
         {paramsValue?.status === 'broadcasting' && (
-          <Button icon="youtube" mode="text" onPress={() => deleteStream()}>
+          <Button icon="youtube" mode="text" onPress={() => showModal()}>
             {paramsValue?.endPointList && paramsValue?.endPointList.length
               ? 'Stop YouTube Live'
               : 'Start YouTube Live'}

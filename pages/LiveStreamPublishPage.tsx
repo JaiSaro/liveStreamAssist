@@ -1,13 +1,10 @@
 import React from 'react';
-import {View, ScrollView} from 'react-native';
-// import {Text, Divider, Chip, TextInput, Button} from 'react-native-paper';
-import {Text, Divider, TextInput, Button} from 'react-native-paper';
+import {ScrollView} from 'react-native';
+import {Text, TextInput, Button} from 'react-native-paper';
 import {PostApiMethod} from '../utils/AxiosHelper';
 import AppSnackbar from '../components/AppSnackbar';
 
 function LiveStreamPublishPage({navigation}: any): React.JSX.Element {
-  // const [isWebRTCStream, setIsWebRTCStream] = React.useState(true);
-  // const [isYouTubeStream, setIsYoutubeStream] = React.useState(false);
   const [snackDetails, setSnackDetails] = React.useState<{
     show: boolean;
     content: string;
@@ -15,9 +12,6 @@ function LiveStreamPublishPage({navigation}: any): React.JSX.Element {
   const [streamUrl, setStreamUrl] = React.useState('');
   const [streamId, setStreamId] = React.useState('');
   const [streamName, setStreamName] = React.useState('');
-  // const [youTubeLiveStreamUrl, setYouTubeLiveStreamUrl] = React.useState('');
-  // const [youTubeLiveUrl, setYouTubeLiveUrl] = React.useState('');
-
   const publishStream = React.useCallback(() => {
     PostApiMethod('request?_path=WebRTCAppEE/rest/v2/broadcasts/create', {
       hlsViewerCount: 0,
@@ -56,25 +50,6 @@ function LiveStreamPublishPage({navigation}: any): React.JSX.Element {
         <Text variant="labelLarge" style={{marginTop: 10, alignSelf: 'center'}}>
           Enter your RTSP link, Stream Id, Stream Name
         </Text>
-        {/* <View>
-          <Chip
-            onPress={() => {
-              setIsWebRTCStream(!isWebRTCStream);
-            }}
-            style={{marginRight: 8}}
-            selected={isWebRTCStream}>
-            Webrtc Stream
-          </Chip>
-          <Chip
-            onPress={() => {
-              setIsYoutubeStream(!isYouTubeStream);
-            }}
-            style={{marginRight: 8}}
-            selected={isYouTubeStream}>
-            Youtube Live
-          </Chip>
-        </View>
-        <Divider /> */}
         <TextInput
           style={{margin: 15}}
           label="rtsp://url"
@@ -93,28 +68,6 @@ function LiveStreamPublishPage({navigation}: any): React.JSX.Element {
           mode="outlined"
           onChangeText={text => setStreamId(text)}
         />
-        {/* {isYouTubeStream && (
-          <>
-            <Divider />
-            <Text
-              variant="titleMedium"
-              style={{alignContent: 'center', marginTop: 10}}>
-              YouTube Details
-            </Text>
-            <TextInput
-              style={{margin: 15}}
-              label="rtmp://youtubeLiveStreamUrl/key"
-              mode="outlined"
-              onChangeText={text => setYouTubeLiveStreamUrl(text)}
-            />
-            <TextInput
-              style={{margin: 15}}
-              label="YouTube Live Url"
-              mode="outlined"
-              onChangeText={text => setYouTubeLiveUrl(text)}
-            />
-          </>
-        )} */}
         <Button
           style={{margin: 15}}
           icon="send"
