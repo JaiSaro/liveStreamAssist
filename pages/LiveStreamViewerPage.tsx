@@ -5,10 +5,9 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Modal,
-  TextInput,
 } from 'react-native';
 import {useAntMedia, rtc_view} from '@antmedia/react-native-ant-media';
-import {Button, Portal, Text} from 'react-native-paper';
+import {Button, Portal, Text, TextInput} from 'react-native-paper';
 import {DeleteApiMethod, PostApiMethod} from '../utils/AxiosHelper';
 import AppSnackbar from '../components/AppSnackbar';
 
@@ -27,7 +26,6 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
   const [youTubeLiveUrl, setYouTubeLiveUrl] = React.useState('');
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
-  const containerStyle = {backgroundColor: 'white', padding: 200};
 
   React.useEffect(() => {
     console.log('paramsValue>>>', paramsValue);
@@ -158,11 +156,10 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
   return (
     <SafeAreaView style={styles.container}>
       <Portal>
-        <Modal
-          visible={visible}
-          onDismiss={hideModal}
-          contentContainerStyle={containerStyle}>
-          <Text variant="titleLarge" style={{alignSelf: 'center', paddingHorizontal: 20}}>
+        <Modal visible={visible} onDismiss={hideModal}>
+          <Text
+            variant="titleLarge"
+            style={{alignSelf: 'center', paddingHorizontal: 20}}>
             Add RTMP Endpoint
           </Text>
           <TextInput
