@@ -1,5 +1,6 @@
 import React from 'react';
 import {Button, List, Text} from 'react-native-paper';
+import {useIsFocused} from '@react-navigation/native';
 import {GetApiMethod} from '../utils/AxiosHelper';
 import AppSnackbar from '../components/AppSnackbar';
 
@@ -10,6 +11,11 @@ function LiveStreamListPage({route, navigation}: any) {
     show: boolean;
     content: string;
   }>({show: false, content: ''});
+  const isFocused = useIsFocused();
+
+  React.useEffect(() => {
+    console.log('isFocused>>>>', isFocused);
+  }, [isFocused]);
 
   const getStreamList = React.useCallback(() => {
     GetApiMethod('request?_path=WebRTCAppEE/rest/v2/broadcasts/list/0/10')
