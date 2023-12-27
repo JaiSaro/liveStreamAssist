@@ -3,6 +3,7 @@ import {Button, List, Text} from 'react-native-paper';
 import {useIsFocused} from '@react-navigation/native';
 import {GetApiMethod} from '../utils/AxiosHelper';
 import AppSnackbar from '../components/AppSnackbar';
+import {authenticateAntMediaAPI} from '../utils/AuthenticateHelper';
 
 function LiveStreamListPage({route, navigation}: any) {
   const routeParamsValue = route.params;
@@ -12,10 +13,6 @@ function LiveStreamListPage({route, navigation}: any) {
     content: string;
   }>({show: false, content: ''});
   const isFocused = useIsFocused();
-
-  React.useEffect(() => {
-    console.log('isFocused>>>>', isFocused);
-  }, [isFocused]);
 
   const getStreamList = React.useCallback(() => {
     GetApiMethod('request?_path=WebRTCAppEE/rest/v2/broadcasts/list/0/10')
@@ -38,7 +35,30 @@ function LiveStreamListPage({route, navigation}: any) {
   }, []);
 
   React.useEffect(() => {
-    if (routeParamsValue?.name && routeParamsValue?.streamId) {
+    if (isFocused) {
+      authenticateAntMediaAPI()
+        .then(function (response: any) {
+          console.log(response.data);
+        })
+        .catch(function (error: any) {
+          setSnackDetails({
+            ...{
+              show: true,
+              content: 'Fail to authenticate with AntMedia',
+            },
+          });
+          console.log(error.message);
+        });
+    }
+  }, [isFocused]);
+
+  React.useEffect(() => {
+    console.log('routeParamsValue>>>', routeParamsValue);
+    if (
+      routeParamsValue?.name &&
+      routeParamsValue?.streamId &&
+      routeParamsValue.from === 'deleteStream'
+    ) {
       setSnackDetails({
         ...{
           show: true,
@@ -48,6 +68,18 @@ function LiveStreamListPage({route, navigation}: any) {
             ' (' +
             routeParamsValue.streamId +
             ')',
+        },
+      });
+    }
+    if (
+      routeParamsValue.from === 'startstopBroadCast' &&
+      routeParamsValue.message === null &&
+      routeParamsValue.isStart
+    ) {
+      setSnackDetails({
+        ...{
+          show: true,
+          content: '',
         },
       });
     }

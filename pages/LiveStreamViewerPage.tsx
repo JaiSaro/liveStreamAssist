@@ -37,7 +37,10 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
         'request?_path=WebRTCAppEE/rest/v2/broadcasts/' + paramsValue?.streamId,
       )
         .then(response => {
-          navigation.navigate('LiveStreamListPage', response.data);
+          navigation.navigate('LiveStreamListPage', {
+            from: 'deleteStream',
+            ...response.data,
+          });
         })
         .catch(function (error: any) {
           setSnackDetails({
@@ -61,7 +64,25 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
           {},
         )
           .then(response => {
-            navigation.navigate('LiveStreamListPage', response.data);
+            if (response?.data) {
+              console.log(response.data);
+              if (response?.data?.success) {
+                navigation.navigate('LiveStreamListPage', {
+                  from: 'startstopBroadCast',
+                  isStart: isStart,
+                  ...response.data,
+                });
+              } else {
+                setSnackDetails({
+                  ...{
+                    show: true,
+                    content: response?.data?.message
+                      ? response?.data?.message
+                      : 'Error in broadcasting',
+                  },
+                });
+              }
+            }
           })
           .catch(function (error: any) {
             setSnackDetails({
