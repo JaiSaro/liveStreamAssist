@@ -100,6 +100,53 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
     [paramsValue, navigation],
   );
 
+  const addRTMPEndpoint = React.useCallback(
+    (isStart = true) => {
+      if (paramsValue?.streamId) {
+        PostApiMethod(
+          `request?_path=WebRTCAppEE/rest/v2/broadcasts/${paramsValue?.streamId}/rtmp-endpoint`,
+          {rtmpUrl: youTubeLiveUrl},
+        )
+          .then(response => {
+            if (response?.data) {
+              if (response?.data?.success) {
+                setSnackDetails({
+                  ...{
+                    show: true,
+                    content: response?.data?.message
+                      ? response?.data?.message
+                      : 'Added the rtmp endpoint to this broadcast',
+                  },
+                });
+              } else {
+                setSnackDetails({
+                  ...{
+                    show: true,
+                    content: response?.data?.message
+                      ? 'Error: ' + response?.data?.message
+                      : 'Error in adding rtmp endpoint',
+                  },
+                });
+              }
+            }
+            hideModal();
+          })
+          .catch(function (error: any) {
+            setSnackDetails({
+              ...{
+                show: true,
+                content: `Fail to ${isStart ? 'start' : 'stop'} ${
+                  paramsValue?.streamId
+                } - broadcast`,
+              },
+            });
+            console.log(error.message);
+          });
+      }
+    },
+    [paramsValue, navigation],
+  );
+
   const adaptor = useAntMedia({
     url: process.env.REACT_APP_WEBSOCKET_URL
       ? process.env.REACT_APP_WEBSOCKET_URL
@@ -177,18 +224,47 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
   return (
     <SafeAreaView style={styles.container}>
       <Portal>
-        <Modal visible={visible} onDismiss={hideModal}>
-          <Text
-            variant="titleLarge"
-            style={{alignSelf: 'center', paddingHorizontal: 20}}>
-            Add RTMP Endpoint
-          </Text>
-          <TextInput
-            style={{margin: 15}}
-            label="YouTube Live Url"
-            mode="outlined"
-            onChangeText={text => setYouTubeLiveUrl(text)}
-          />
+        <Modal
+          visible={visible}
+          onDismiss={hideModal}
+          animationType="slide"
+          style={{margin: 20}}>
+          <View
+            style={{
+              height: '80%',
+              marginTop: 'auto',
+            }}>
+            <Text
+              variant="titleLarge"
+              style={{alignSelf: 'center', paddingHorizontal: 20}}>
+              Add RTMP Endpoint
+            </Text>
+            <TextInput
+              style={{margin: 15}}
+              label="YouTube Live Url"
+              mode="outlined"
+              onChangeText={text => setYouTubeLiveUrl(text)}
+            />
+            {/* {paramsValue?.endPointList && paramsValue?.endPointList.length ? (
+                        {paramsValue?.endPointList.map(endpoint => (
+                          <List.Item
+                            key={'StreamId-' + streamData?.streamId}
+                            title={streamData?.name}
+                            style={{marginLeft: 30}}
+                            description={'StreamId: ' + streamData?.streamId}
+                            onPress={() =>
+                              navigation.navigate('LiveStreamViewerPage', streamData)
+                            }
+                          />
+                        ))}
+            ) : null} */}
+            <Button icon="plus" mode="text" onPress={() => addRTMPEndpoint()}>
+              Add RTMP Endpoint
+            </Button>
+            <Button icon="close" mode="text" onPress={() => hideModal()}>
+              Close
+            </Button>
+          </View>
         </Modal>
       </Portal>
       <View style={styles.box}>

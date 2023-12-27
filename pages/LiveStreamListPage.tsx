@@ -57,7 +57,8 @@ function LiveStreamListPage({route, navigation}: any) {
     if (
       routeParamsValue?.name &&
       routeParamsValue?.streamId &&
-      routeParamsValue.from === 'deleteStream'
+      routeParamsValue?.from &&
+      routeParamsValue?.from === 'deleteStream'
     ) {
       setSnackDetails({
         ...{
@@ -72,14 +73,16 @@ function LiveStreamListPage({route, navigation}: any) {
       });
     }
     if (
-      routeParamsValue.from === 'startstopBroadCast' &&
-      routeParamsValue.message === null &&
-      routeParamsValue.isStart
+      routeParamsValue?.from &&
+      routeParamsValue?.from === 'startstopBroadCast' &&
+      routeParamsValue?.message === null &&
+      routeParamsValue?.isStart
     ) {
       setSnackDetails({
         ...{
           show: true,
-          content: '',
+          content:
+            'Broadcast started kindly refresh the stream list to get updated.',
         },
       });
     }
@@ -95,17 +98,18 @@ function LiveStreamListPage({route, navigation}: any) {
         onPress={() => navigation.navigate('LiveStreamPublishPage')}>
         New Live Stream
       </Button>
-      {streamList && streamList.length ? (
-        <List.Section>
-          <Button
-            icon="refresh"
-            style={{marginHorizontal: 30}}
-            mode="text"
-            onPress={() => getStreamList()}>
-            Refresh List
-          </Button>
-          <List.Subheader>WebRTCAppEE Stream List</List.Subheader>
-          {streamList.map(streamData => (
+
+      <List.Section>
+        <Button
+          icon="refresh"
+          style={{marginHorizontal: 30}}
+          mode="text"
+          onPress={() => getStreamList()}>
+          Refresh List
+        </Button>
+        <List.Subheader>WebRTCAppEE Stream List</List.Subheader>
+        {streamList && streamList.length ? (
+          streamList.map(streamData => (
             <List.Item
               key={'StreamId-' + streamData?.streamId}
               title={streamData?.name}
@@ -126,13 +130,14 @@ function LiveStreamListPage({route, navigation}: any) {
                 navigation.navigate('LiveStreamViewerPage', streamData)
               }
             />
-          ))}
-        </List.Section>
-      ) : (
-        <Text variant="titleMedium" style={{margin: 120}}>
-          No Live Stream
-        </Text>
-      )}
+          ))
+        ) : (
+          <Text variant="titleMedium" style={{margin: 120}}>
+            No Live Stream
+          </Text>
+        )}
+      </List.Section>
+
       <AppSnackbar
         showSnackBar={snackDetails.show}
         snackBarContent={snackDetails.content}
