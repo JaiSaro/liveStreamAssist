@@ -353,7 +353,22 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
           </Button>
         </View>
         {paramsValue?.status === 'broadcasting' && (
-          <Button icon="youtube" mode="text" onPress={() => showModal()}>
+          <Button
+            icon="youtube"
+            mode="text"
+            onPress={() => {
+              if (paramsValue?.status === 'broadcasting') {
+                showModal();
+              } else {
+                setSnackDetails({
+                  ...{
+                    show: true,
+                    content:
+                      'Before Starting Youtube Stream, kindly broadcast first.',
+                  },
+                });
+              }
+            }}>
             {paramsValue?.endPointList && paramsValue?.endPointList.length
               ? 'YouTube Live List'
               : 'Start YouTube Live'}
