@@ -7,7 +7,7 @@ import {
   Modal,
 } from 'react-native';
 import {useAntMedia, rtc_view} from '@antmedia/react-native-ant-media';
-import {Button, Portal, Text, TextInput} from 'react-native-paper';
+import {Button, List, Portal, Text, TextInput} from 'react-native-paper';
 import {DeleteApiMethod, PostApiMethod} from '../utils/AxiosHelper';
 import AppSnackbar from '../components/AppSnackbar';
 
@@ -56,6 +56,19 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
 
   const startStopBroadCast = React.useCallback(
     (isStart = true) => {
+      if (
+        !isStart &&
+        paramsValue?.endPointList &&
+        paramsValue?.endPointList.length
+      ) {
+        setSnackDetails({
+          ...{
+            show: true,
+            content: 'Before Stopping Stream, stop YouTube Live.',
+          },
+        });
+        return;
+      }
       if (paramsValue?.streamId) {
         PostApiMethod(
           `request?_path=WebRTCAppEE/rest/v2/broadcasts/${
@@ -100,23 +113,56 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
     [paramsValue, navigation],
   );
 
-  const addRTMPEndpoint = React.useCallback(
-    (isStart = true) => {
-      if (paramsValue?.streamId) {
-        PostApiMethod(
-          `request?_path=WebRTCAppEE/rest/v2/broadcasts/${paramsValue?.streamId}/rtmp-endpoint`,
-          {rtmpUrl: youTubeLiveUrl},
+  const addRTMPEndpoint = React.useCallback(() => {
+    if (paramsValue?.streamId) {
+      PostApiMethod(
+        `request?_path=WebRTCAppEE/rest/v2/broadcasts/${paramsValue?.streamId}/rtmp-endpoint`,
+        {rtmpUrl: youTubeLiveUrl},
+      )
+        .then(response => {
+          if (response?.data) {
+            if (response?.data?.success) {
+              navigation.navigate('LiveStreamListPage', {
+                from: 'addRTMPEndpoint',
+                ...response.data,
+              });
+            } else {
+              setSnackDetails({
+                ...{
+                  show: true,
+                  content: response?.data?.message
+                    ? 'Error: ' + response?.data?.message
+                    : 'Error in adding rtmp endpoint',
+                },
+              });
+            }
+          }
+          hideModal();
+        })
+        .catch(function (error: any) {
+          setSnackDetails({
+            ...{
+              show: true,
+              content: 'Error in adding rtmp endpoint',
+            },
+          });
+          console.log(error.message);
+        });
+    }
+  }, [navigation, paramsValue?.streamId, youTubeLiveUrl]);
+
+  const removeRTMPEndpoint = React.useCallback(
+    (endpoint: any) => {
+      if (paramsValue?.streamId && endpoint?.endpointServiceId) {
+        DeleteApiMethod(
+          `request?_path=WebRTCAppEE/rest/v2/broadcasts/${paramsValue?.streamId}/rtmp-endpoint&endpointServiceId=${endpoint.endpointServiceId}`,
         )
           .then(response => {
             if (response?.data) {
               if (response?.data?.success) {
-                setSnackDetails({
-                  ...{
-                    show: true,
-                    content: response?.data?.message
-                      ? response?.data?.message
-                      : 'Added the rtmp endpoint to this broadcast',
-                  },
+                navigation.navigate('LiveStreamListPage', {
+                  from: 'addRTMPEndpoint',
+                  ...response.data,
                 });
               } else {
                 setSnackDetails({
@@ -135,16 +181,14 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
             setSnackDetails({
               ...{
                 show: true,
-                content: `Fail to ${isStart ? 'start' : 'stop'} ${
-                  paramsValue?.streamId
-                } - broadcast`,
+                content: 'Error in adding rtmp endpoint',
               },
             });
             console.log(error.message);
           });
       }
     },
-    [paramsValue, navigation],
+    [navigation, paramsValue?.streamId],
   );
 
   const adaptor = useAntMedia({
@@ -245,19 +289,37 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
               mode="outlined"
               onChangeText={text => setYouTubeLiveUrl(text)}
             />
-            {/* {paramsValue?.endPointList && paramsValue?.endPointList.length ? (
-                        {paramsValue?.endPointList.map(endpoint => (
-                          <List.Item
-                            key={'StreamId-' + streamData?.streamId}
-                            title={streamData?.name}
-                            style={{marginLeft: 30}}
-                            description={'StreamId: ' + streamData?.streamId}
-                            onPress={() =>
-                              navigation.navigate('LiveStreamViewerPage', streamData)
-                            }
-                          />
-                        ))}
-            ) : null} */}
+            <List.Section>
+              <List.Subheader>RTMP Endpoint List</List.Subheader>
+              {paramsValue?.endPointList && paramsValue?.endPointList.length
+                ? paramsValue?.endPointList.map((endpoint: any) => (
+                    <>
+                      <List.Item
+                        key={'StreamId-' + endpoint?.endpointServiceId}
+                        title={endpoint?.rtmpUrl}
+                        description={
+                          'ServiceId: ' + endpoint?.endpointServiceId
+                        }
+                        right={() => (
+                          <>
+                            <Text variant="bodySmall">
+                              Status:{' '}
+                              {endpoint?.status === 'broadcasting'
+                                ? 'Broadcasting'
+                                : 'Offline'}
+                            </Text>
+                          </>
+                        )}
+                      />
+                      <Button
+                        icon="delete"
+                        mode="text"
+                        onPress={() => removeRTMPEndpoint(endpoint)}
+                      />
+                    </>
+                  ))
+                : null}
+            </List.Section>
             <Button icon="plus" mode="text" onPress={() => addRTMPEndpoint()}>
               Add RTMP Endpoint
             </Button>
@@ -293,7 +355,7 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
         {paramsValue?.status === 'broadcasting' && (
           <Button icon="youtube" mode="text" onPress={() => showModal()}>
             {paramsValue?.endPointList && paramsValue?.endPointList.length
-              ? 'Stop YouTube Live'
+              ? 'YouTube Live List'
               : 'Start YouTube Live'}
           </Button>
         )}

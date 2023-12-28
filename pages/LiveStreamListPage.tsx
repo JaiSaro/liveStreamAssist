@@ -86,6 +86,19 @@ function LiveStreamListPage({route, navigation}: any) {
         },
       });
     }
+    if (
+      routeParamsValue?.from &&
+      routeParamsValue?.from === 'addRTMPEndpoint'
+    ) {
+      setSnackDetails({
+        ...{
+          show: true,
+          content: routeParamsValue?.message
+            ? routeParamsValue?.message
+            : 'Added the rtmp endpoint to this broadcast',
+        },
+      });
+    }
     getStreamList();
   }, [routeParamsValue, getStreamList]);
 
