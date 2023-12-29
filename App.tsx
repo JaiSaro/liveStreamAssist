@@ -41,6 +41,7 @@ function App(): React.JSX.Element {
         });
       })
       .catch(function (error: any) {
+        console.log(error.data);
         setSnackDetails({
           ...{
             show: true,
