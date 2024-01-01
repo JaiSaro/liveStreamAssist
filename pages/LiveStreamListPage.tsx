@@ -41,6 +41,7 @@ function LiveStreamListPage({route, navigation}: any) {
           console.log(response.data);
         })
         .catch(function (error: any) {
+          console.log(error.message);
           setSnackDetails({
             ...{
               show: true,
@@ -53,7 +54,6 @@ function LiveStreamListPage({route, navigation}: any) {
   }, [isFocused]);
 
   React.useEffect(() => {
-    console.log('routeParamsValue>>>', routeParamsValue);
     if (
       routeParamsValue?.name &&
       routeParamsValue?.streamId &&
