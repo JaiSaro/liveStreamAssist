@@ -1,44 +1,44 @@
-import React, {useCallback, useRef, useState, useEffect} from 'react';
+import React, { useCallback, useRef, useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
   SafeAreaView,
   TouchableOpacity,
   Modal,
-} from 'react-native';
-import {useAntMedia, rtc_view} from '@antmedia/react-native-ant-media';
-import {Button, List, Portal, Text, TextInput} from 'react-native-paper';
-import {DeleteApiMethod, PostApiMethod} from '../utils/AxiosHelper';
-import AppSnackbar from '../components/AppSnackbar';
+} from "react-native";
+import { useAntMedia, rtc_view } from "@antmedia/react-native-ant-media";
+import { Button, List, Portal, Text, TextInput } from "react-native-paper";
+import { DeleteApiMethod, PostApiMethod } from "../utils/AxiosHelper";
+import AppSnackbar from "../components/AppSnackbar";
 
-function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
+function LiveStreamViewerPage({ route, navigation }: any): React.JSX.Element {
   const paramsValue = route.params;
-  var defaultStreamName = paramsValue?.streamId ? paramsValue?.streamId : '';
+  var defaultStreamName = paramsValue?.streamId ? paramsValue?.streamId : "";
 
   const streamNameRef = useRef<string>(defaultStreamName);
-  const [remoteMedia, setRemoteStream] = useState<string>('');
+  const [remoteMedia, setRemoteStream] = useState<string>("");
   const [isPlaying, setIsPlaying] = useState(false);
   const [snackDetails, setSnackDetails] = React.useState<{
     show: boolean;
     content: string;
-  }>({show: false, content: ''});
+  }>({ show: false, content: "" });
   const [visible, setVisible] = React.useState(false);
-  const [youTubeLiveUrl, setYouTubeLiveUrl] = React.useState('');
+  const [youTubeLiveUrl, setYouTubeLiveUrl] = React.useState("");
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
 
   React.useEffect(() => {
-    console.log('paramsValue>>>', paramsValue);
+    console.log("paramsValue>>>", paramsValue);
   }, [paramsValue]);
 
   const deleteStream = React.useCallback(() => {
     if (paramsValue?.streamId) {
       DeleteApiMethod(
-        'request?_path=WebRTCAppEE/rest/v2/broadcasts/' + paramsValue?.streamId,
+        "request?_path=WebRTCAppEE/rest/v2/broadcasts/" + paramsValue?.streamId
       )
-        .then(response => {
-          navigation.navigate('LiveStreamListPage', {
-            from: 'deleteStream',
+        .then((response) => {
+          navigation.navigate("LiveStreamListPage", {
+            from: "deleteStream",
             ...response.data,
           });
         })
@@ -64,7 +64,7 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
         setSnackDetails({
           ...{
             show: true,
-            content: 'Before Stopping Stream, stop YouTube Live.',
+            content: "Before Stopping Stream, stop YouTube Live.",
           },
         });
         return;
@@ -73,15 +73,15 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
         PostApiMethod(
           `request?_path=WebRTCAppEE/rest/v2/broadcasts/${
             paramsValue?.streamId
-          }/${isStart ? 'start' : 'stop'}`,
-          {},
+          }/${isStart ? "start" : "stop"}`,
+          {}
         )
-          .then(response => {
+          .then((response) => {
             if (response?.data) {
               console.log(response.data);
               if (response?.data?.success) {
-                navigation.navigate('LiveStreamListPage', {
-                  from: 'startstopBroadCast',
+                navigation.navigate("LiveStreamListPage", {
+                  from: "startstopBroadCast",
                   isStart: isStart,
                   ...response.data,
                 });
@@ -91,7 +91,7 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
                     show: true,
                     content: response?.data?.message
                       ? response?.data?.message
-                      : 'Error in broadcasting',
+                      : "Error in broadcasting",
                   },
                 });
               }
@@ -101,7 +101,7 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
             setSnackDetails({
               ...{
                 show: true,
-                content: `Fail to ${isStart ? 'start' : 'stop'} ${
+                content: `Fail to ${isStart ? "start" : "stop"} ${
                   paramsValue?.streamId
                 } - broadcast`,
               },
@@ -110,20 +110,20 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
           });
       }
     },
-    [paramsValue, navigation],
+    [paramsValue, navigation]
   );
 
   const addRTMPEndpoint = React.useCallback(() => {
     if (paramsValue?.streamId) {
       PostApiMethod(
         `request?_path=WebRTCAppEE/rest/v2/broadcasts/${paramsValue?.streamId}/rtmp-endpoint`,
-        {rtmpUrl: youTubeLiveUrl},
+        { rtmpUrl: youTubeLiveUrl }
       )
-        .then(response => {
+        .then((response) => {
           if (response?.data) {
             if (response?.data?.success) {
-              navigation.navigate('LiveStreamListPage', {
-                from: 'addRTMPEndpoint',
+              navigation.navigate("LiveStreamListPage", {
+                from: "addRTMPEndpoint",
                 ...response.data,
               });
             } else {
@@ -131,8 +131,8 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
                 ...{
                   show: true,
                   content: response?.data?.message
-                    ? 'Error: ' + response?.data?.message
-                    : 'Error in adding rtmp endpoint',
+                    ? "Error: " + response?.data?.message
+                    : "Error in adding rtmp endpoint",
                 },
               });
             }
@@ -143,7 +143,7 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
           setSnackDetails({
             ...{
               show: true,
-              content: 'Error in adding rtmp endpoint',
+              content: "Error in adding rtmp endpoint",
             },
           });
           console.log(error.message);
@@ -155,13 +155,13 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
     (endpoint: any) => {
       if (paramsValue?.streamId && endpoint?.endpointServiceId) {
         DeleteApiMethod(
-          `request?_path=WebRTCAppEE/rest/v2/broadcasts/${paramsValue?.streamId}/rtmp-endpoint&endpointServiceId=${endpoint.endpointServiceId}`,
+          `request?_path=WebRTCAppEE/rest/v2/broadcasts/${paramsValue?.streamId}/rtmp-endpoint&endpointServiceId=${endpoint.endpointServiceId}`
         )
-          .then(response => {
+          .then((response) => {
             if (response?.data) {
               if (response?.data?.success) {
-                navigation.navigate('LiveStreamListPage', {
-                  from: 'addRTMPEndpoint',
+                navigation.navigate("LiveStreamListPage", {
+                  from: "addRTMPEndpoint",
                   ...response.data,
                 });
               } else {
@@ -169,8 +169,8 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
                   ...{
                     show: true,
                     content: response?.data?.message
-                      ? 'Error: ' + response?.data?.message
-                      : 'Error in adding rtmp endpoint',
+                      ? "Error: " + response?.data?.message
+                      : "Error in adding rtmp endpoint",
                   },
                 });
               }
@@ -181,42 +181,42 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
             setSnackDetails({
               ...{
                 show: true,
-                content: 'Error in adding rtmp endpoint',
+                content: "Error in adding rtmp endpoint",
               },
             });
             console.log(error.message);
           });
       }
     },
-    [navigation, paramsValue?.streamId],
+    [navigation, paramsValue?.streamId]
   );
 
   const adaptor = useAntMedia({
     url: process.env.REACT_APP_WEBSOCKET_URL
       ? process.env.REACT_APP_WEBSOCKET_URL
-      : '',
+      : "",
     mediaConstraints: {
       audio: true,
       video: {
         width: 640,
         height: 480,
         frameRate: 30,
-        facingMode: 'front',
+        facingMode: "front",
       },
     },
     callback(command: any) {
       switch (command) {
-        case 'pong':
+        case "pong":
           break;
-        case 'play_started':
-          console.log('play_started');
+        case "play_started":
+          console.log("play_started");
           setIsPlaying(true);
           break;
-        case 'play_finished':
-          console.log('play_finished');
+        case "play_finished":
+          console.log("play_finished");
           //InCallManager.stop();
           setIsPlaying(false);
-          setRemoteStream('');
+          setRemoteStream("");
           break;
         default:
           console.log(command);
@@ -224,12 +224,12 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
       }
     },
     callbackError: (err: any, data: any) => {
-      console.error('callbackError', err, data);
+      console.error("callbackError", err, data);
     },
     peer_connection_config: {
       iceServers: [
         {
-          url: 'stun:stun.l.google.com:19302',
+          url: "stun:stun.l.google.com:19302",
         },
       ],
     },
@@ -237,14 +237,14 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
   });
 
   useEffect(() => {
-    console.log('adaptor>>>', adaptor.remoteStreams);
+    console.log("adaptor>>>", adaptor.remoteStreams);
     if (adaptor && Object.keys(adaptor.remoteStreams).length > 0) {
       for (let i in adaptor.remoteStreams) {
         let st =
-          adaptor.remoteStreams[i] && 'toURL' in adaptor.remoteStreams[i]
+          adaptor.remoteStreams[i] && "toURL" in adaptor.remoteStreams[i]
             ? adaptor.remoteStreams[i].toURL()
             : null;
-        console.log('st>>>>>>>>', st);
+        console.log("st>>>>>>>>", st);
         break;
       }
     }
@@ -272,22 +272,25 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
           visible={visible}
           onDismiss={hideModal}
           animationType="slide"
-          style={{margin: 20}}>
+          style={{ margin: 20 }}
+        >
           <View
             style={{
-              height: '80%',
-              marginTop: 'auto',
-            }}>
+              height: "80%",
+              marginTop: "auto",
+            }}
+          >
             <Text
               variant="titleLarge"
-              style={{alignSelf: 'center', paddingHorizontal: 20}}>
+              style={{ alignSelf: "center", paddingHorizontal: 20 }}
+            >
               Add RTMP Endpoint
             </Text>
             <TextInput
-              style={{margin: 15}}
+              style={{ margin: 15 }}
               label="YouTube Live Url"
               mode="outlined"
-              onChangeText={text => setYouTubeLiveUrl(text)}
+              onChangeText={(text) => setYouTubeLiveUrl(text)}
             />
             <List.Section>
               <List.Subheader>RTMP Endpoint List</List.Subheader>
@@ -295,18 +298,18 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
                 ? paramsValue?.endPointList.map((endpoint: any) => (
                     <>
                       <List.Item
-                        key={'StreamId-' + endpoint?.endpointServiceId}
+                        key={"StreamId-" + endpoint?.endpointServiceId}
                         title={endpoint?.rtmpUrl}
                         description={
-                          'ServiceId: ' + endpoint?.endpointServiceId
+                          "ServiceId: " + endpoint?.endpointServiceId
                         }
                         right={() => (
                           <>
                             <Text variant="bodySmall">
-                              Status:{' '}
-                              {endpoint?.status === 'broadcasting'
-                                ? 'Broadcasting'
-                                : 'Offline'}
+                              Status:{" "}
+                              {endpoint?.status === "broadcasting"
+                                ? "Broadcasting"
+                                : "Offline"}
                             </Text>
                           </>
                         )}
@@ -332,46 +335,49 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
       <View style={styles.box}>
         <View
           style={{
-            flexDirection: 'row',
+            flexDirection: "row",
             paddingHorizontal: 30,
             paddingTop: 10,
-          }}>
+          }}
+        >
           <Button icon="delete" mode="text" onPress={() => deleteStream()}>
             Delete
           </Button>
           <Button
-            icon={paramsValue?.status === 'broadcasting' ? 'stop' : 'play'}
+            icon={paramsValue?.status === "broadcasting" ? "stop" : "play"}
             mode="text"
             onPress={() =>
-              paramsValue?.status === 'broadcasting'
+              paramsValue?.status === "broadcasting"
                 ? startStopBroadCast(false)
                 : startStopBroadCast()
-            }>
-            {paramsValue?.status === 'broadcasting'
-              ? 'Stop Broadcast'
-              : 'Start Broadcast'}
+            }
+          >
+            {paramsValue?.status === "broadcasting"
+              ? "Stop Broadcast"
+              : "Start Broadcast"}
           </Button>
         </View>
-        {paramsValue?.status === 'broadcasting' && (
+        {paramsValue?.status === "broadcasting" && (
           <Button
             icon="youtube"
             mode="text"
             onPress={() => {
-              if (paramsValue?.status === 'broadcasting') {
+              if (paramsValue?.status === "broadcasting") {
                 showModal();
               } else {
                 setSnackDetails({
                   ...{
                     show: true,
                     content:
-                      'Before Starting Youtube Stream, kindly broadcast first.',
+                      "Before Starting Youtube Stream, kindly broadcast first.",
                   },
                 });
               }
-            }}>
+            }}
+          >
             {paramsValue?.endPointList && paramsValue?.endPointList.length
-              ? 'YouTube Live List'
-              : 'Start YouTube Live'}
+              ? "YouTube Live List"
+              : "Start YouTube Live"}
           </Button>
         )}
 
@@ -384,10 +390,10 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
               StreamId: {paramsValue?.streamId}
             </Text>
             <Text variant="titleSmall" style={styles.heading}>
-              Status:{' '}
-              {paramsValue?.status === 'broadcasting'
-                ? 'Broadcasting'
-                : 'Offline'}
+              Status:{" "}
+              {paramsValue?.status === "broadcasting"
+                ? "Broadcasting"
+                : "Offline"}
             </Text>
           </>
         ) : null}
@@ -417,7 +423,7 @@ function LiveStreamViewerPage({route, navigation}: any): React.JSX.Element {
           setSnackDetails({
             ...{
               show: false,
-              content: '',
+              content: "",
             },
           });
         }}
@@ -431,31 +437,31 @@ export default LiveStreamViewerPage;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   box: {
-    alignSelf: 'center',
-    width: '80%',
-    height: '100%',
+    alignSelf: "center",
+    width: "80%",
+    height: "100%",
   },
   streamPlayer: {
-    width: '100%',
-    height: '80%',
-    alignSelf: 'center',
+    width: "100%",
+    height: "80%",
+    alignSelf: "center",
   },
   button: {
-    alignItems: 'center',
-    backgroundColor: '#DDDDDD',
+    alignItems: "center",
+    backgroundColor: "#DDDDDD",
     padding: 10,
   },
   startButton: {
-    alignItems: 'center',
-    backgroundColor: '#DDDDDD',
+    alignItems: "center",
+    backgroundColor: "#DDDDDD",
     padding: 10,
     top: 400,
   },
   heading: {
-    alignSelf: 'center',
+    alignSelf: "center",
   },
 });
