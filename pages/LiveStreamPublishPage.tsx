@@ -1,19 +1,19 @@
-import React from 'react';
-import {ScrollView} from 'react-native';
-import {Text, TextInput, Button} from 'react-native-paper';
-import {PostApiMethod} from '../utils/AxiosHelper';
-import AppSnackbar from '../components/AppSnackbar';
+import React from "react";
+import { ScrollView } from "react-native";
+import { Text, TextInput, Button } from "react-native-paper";
+import { PostApiMethod } from "../utils/AxiosHelper";
+import AppSnackbar from "../components/AppSnackbar";
 
-function LiveStreamPublishPage({navigation}: any): React.JSX.Element {
+function LiveStreamPublishPage({ navigation }: any): React.JSX.Element {
   const [snackDetails, setSnackDetails] = React.useState<{
     show: boolean;
     content: string;
-  }>({show: false, content: ''});
-  const [streamUrl, setStreamUrl] = React.useState('');
-  const [streamId, setStreamId] = React.useState('');
-  const [streamName, setStreamName] = React.useState('');
+  }>({ show: false, content: "" });
+  const [streamUrl, setStreamUrl] = React.useState("");
+  const [streamId, setStreamId] = React.useState("");
+  const [streamName, setStreamName] = React.useState("");
   const publishStream = React.useCallback(() => {
-    PostApiMethod('request?_path=WebRTCAppEE/rest/v2/broadcasts/create', {
+    PostApiMethod("request?_path=WebRTCAppEE/rest/v2/broadcasts/create", {
       hlsViewerCount: 0,
       dashViewerCount: 0,
       webRTCViewerCount: 0,
@@ -24,19 +24,19 @@ function LiveStreamPublishPage({navigation}: any): React.JSX.Element {
       streamUrl: streamUrl,
       streamId: streamId,
       name: streamName,
-      type: 'streamSource',
-      publishType: 'WebRTC',
-      status: 'broadcasting',
-      playListStatus: 'broadcasting',
+      type: "streamSource",
+      publishType: "WebRTC",
+      status: "broadcasting",
+      playListStatus: "broadcasting",
     })
-      .then(response => {
-        navigation.navigate('LiveStreamListPage', response.data);
+      .then((response) => {
+        navigation.navigate("LiveStreamListPage", response.data);
       })
       .catch(function (error: any) {
         setSnackDetails({
           ...{
             show: true,
-            content: 'Fail to create AntMedia live stream list',
+            content: "Fail to create AntMedia live stream list",
           },
         });
         console.log(error.message);
@@ -45,34 +45,38 @@ function LiveStreamPublishPage({navigation}: any): React.JSX.Element {
 
   return (
     <>
-      <ScrollView style={{margin: 25}} showsHorizontalScrollIndicator={false}>
+      <ScrollView style={{ margin: 25 }} showsHorizontalScrollIndicator={false}>
         <Text variant="headlineSmall">Publish Stream!</Text>
-        <Text variant="labelLarge" style={{marginTop: 10, alignSelf: 'center'}}>
+        <Text
+          variant="labelLarge"
+          style={{ marginTop: 10, alignSelf: "center" }}
+        >
           Enter your RTSP link, Stream Id, Stream Name
         </Text>
         <TextInput
-          style={{margin: 15}}
+          style={{ margin: 15 }}
           label="rtsp://url"
           mode="outlined"
-          onChangeText={text => setStreamUrl(text)}
+          onChangeText={(text) => setStreamUrl(text)}
         />
         <TextInput
-          style={{margin: 15}}
+          style={{ margin: 15 }}
           label="Stream Name"
           mode="outlined"
-          onChangeText={text => setStreamName(text)}
+          onChangeText={(text) => setStreamName(text)}
         />
         <TextInput
-          style={{margin: 15}}
+          style={{ margin: 15 }}
           label="Stream ID"
           mode="outlined"
-          onChangeText={text => setStreamId(text)}
+          onChangeText={(text) => setStreamId(text)}
         />
         <Button
-          style={{margin: 15}}
+          style={{ margin: 15 }}
           icon="send"
           mode="contained"
-          onPress={publishStream}>
+          onPress={publishStream}
+        >
           Publish Stream
         </Button>
       </ScrollView>
@@ -83,7 +87,7 @@ function LiveStreamPublishPage({navigation}: any): React.JSX.Element {
           setSnackDetails({
             ...{
               show: false,
-              content: '',
+              content: "",
             },
           });
         }}
