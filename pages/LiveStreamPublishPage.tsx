@@ -24,7 +24,7 @@ function LiveStreamPublishPage({ navigation }: any): React.JSX.Element {
       streamUrl: streamUrl,
       streamId: streamId,
       name: streamName,
-      type: "liveStream",
+      type: "streamSource",
       publishType: "WebRTC",
       status: "broadcasting",
       playListStatus: "broadcasting",
