@@ -18,10 +18,17 @@ export const GetApiMethod = (routeName: string) => {
   return axios.get(process.env.REACT_APP_BASE_URL + routeName);
 };
 
-export const PutApiMethod = (routeName: string, body: object) => {
+export const PutApiMethod = (
+  routeName: string,
+  body: object,
+  headers: {[index: string]: {[index: string]: string}} = {
+    headers: {'Content-Type': 'application/json'},
+  },
+) => {
   return axios.put(
     process.env.REACT_APP_BASE_URL + routeName,
     JSON.stringify(body),
+    headers,
   );
 };
 

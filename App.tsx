@@ -3,6 +3,7 @@ import React from 'react';
 import LiveStreamViewerPage from './pages/LiveStreamViewerPage';
 import LiveStreamPublishPage from './pages/LiveStreamPublishPage';
 import LiveStreamListPage from './pages/LiveStreamListPage';
+import LiveStreamPlayer from './pages/LiveStreamPlayer';
 
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native';
@@ -89,6 +90,7 @@ function App(): React.JSX.Element {
             name="LiveStreamViewerPage"
             component={LiveStreamViewerPage}
           />
+          <Stack.Screen name="LiveStreamPlayer" component={LiveStreamPlayer} />
         </Stack.Navigator>
         {/* <Portal>
           <Dialog visible={visible} onDismiss={hideDialog}>

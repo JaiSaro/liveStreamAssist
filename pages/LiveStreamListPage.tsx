@@ -141,9 +141,13 @@ function LiveStreamListPage({ route, navigation }: any) {
                   </Text>
                 </>
               )}
-              onPress={() =>
-                navigation.navigate("LiveStreamViewerPage", streamData)
-              }
+              onPress={() => {
+                if (streamData.type === "liveStream") {
+                  navigation.navigate("LiveStreamPlayer", streamData);
+                } else {
+                  navigation.navigate("LiveStreamViewerPage", streamData);
+                }
+              }}
             />
           ))
         ) : (

@@ -27,10 +27,6 @@ function LiveStreamViewerPage({ route, navigation }: any): React.JSX.Element {
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
 
-  React.useEffect(() => {
-    console.log("paramsValue>>>", paramsValue);
-  }, [paramsValue]);
-
   const deleteStream = React.useCallback(() => {
     if (paramsValue?.streamId) {
       DeleteApiMethod(

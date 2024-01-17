@@ -1,6 +1,6 @@
 import React from "react";
-import { ScrollView } from "react-native";
-import { Text, TextInput, Button } from "react-native-paper";
+import { ScrollView, View } from "react-native";
+import { Text, TextInput, Button, RadioButton } from "react-native-paper";
 import { PostApiMethod } from "../utils/AxiosHelper";
 import AppSnackbar from "../components/AppSnackbar";
 
@@ -12,6 +12,7 @@ function LiveStreamPublishPage({ navigation }: any): React.JSX.Element {
   const [streamUrl, setStreamUrl] = React.useState("");
   const [streamId, setStreamId] = React.useState("");
   const [streamName, setStreamName] = React.useState("");
+  const [value, setValue] = React.useState("liveStream");
   const publishStream = React.useCallback(() => {
     PostApiMethod("request?_path=WebRTCAppEE/rest/v2/broadcasts/create", {
       hlsViewerCount: 0,
@@ -24,7 +25,7 @@ function LiveStreamPublishPage({ navigation }: any): React.JSX.Element {
       streamUrl: streamUrl,
       streamId: streamId,
       name: streamName,
-      type: "streamSource",
+      type: value === "streamSource" ? "streamSource" : "liveStream",
       publishType: "WebRTC",
       status: "broadcasting",
       playListStatus: "broadcasting",
@@ -41,24 +42,40 @@ function LiveStreamPublishPage({ navigation }: any): React.JSX.Element {
         });
         console.log(error.message);
       });
-  }, [streamUrl, streamId, streamName, navigation]);
+  }, [streamUrl, streamId, streamName, navigation, value]);
 
   return (
     <>
       <ScrollView style={{ margin: 25 }} showsHorizontalScrollIndicator={false}>
-        <Text variant="headlineSmall">Publish Stream!</Text>
+        <Text variant="headlineSmall">Create Stream!</Text>
         <Text
           variant="labelLarge"
-          style={{ marginTop: 10, alignSelf: "center" }}
+          style={{ marginVertical: 25, alignSelf: "center" }}
         >
-          Enter your RTSP link, Stream Id, Stream Name
+          Enter your {value === "streamSource" ? "RTSP link, " : ""}Stream Id,
+          Stream Name
         </Text>
-        <TextInput
-          style={{ margin: 15 }}
-          label="rtsp://url"
-          mode="outlined"
-          onChangeText={(text) => setStreamUrl(text)}
-        />
+        <RadioButton.Group
+          onValueChange={(newValue) => setValue(newValue)}
+          value={value}
+        >
+          <View>
+            <Text>Live Stream</Text>
+            <RadioButton value="liveStream" />
+          </View>
+          <View>
+            <Text>StreamSource</Text>
+            <RadioButton value="streamSource" />
+          </View>
+        </RadioButton.Group>
+        {value === "streamSource" && (
+          <TextInput
+            style={{ margin: 15 }}
+            label="rtsp://url"
+            mode="outlined"
+            onChangeText={(text) => setStreamUrl(text)}
+          />
+        )}
         <TextInput
           style={{ margin: 15 }}
           label="Stream Name"
@@ -77,7 +94,7 @@ function LiveStreamPublishPage({ navigation }: any): React.JSX.Element {
           mode="contained"
           onPress={publishStream}
         >
-          Publish Stream
+          Create Stream
         </Button>
       </ScrollView>
       <AppSnackbar
