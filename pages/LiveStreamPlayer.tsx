@@ -121,7 +121,16 @@ export default function LiveStreamPlayer({
       adaptor.stop(streamNameRef.current);
     }
     navigation.navigate("LiveStreamListPage", {
-      from: "deleteStream",
+      from: "liveStreamPlayer",
+    });
+  }, [navigation, adaptor]);
+
+  const goToLiveStreamVideoList = useCallback(() => {
+    if (adaptor) {
+      adaptor.stop(streamNameRef.current);
+    }
+    navigation.navigate("LiveStreamVODListPage", {
+      from: "liveStreamPlayer",
     });
   }, [navigation, adaptor]);
 
@@ -168,6 +177,12 @@ export default function LiveStreamPlayer({
           <>
             <TouchableOpacity onPress={handlePlay} style={styles.startButton}>
               <Text>Start Playing</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={goToLiveStreamVideoList}
+              style={styles.startButton}
+            >
+              <Text>VoD List</Text>
             </TouchableOpacity>
           </>
         ) : (

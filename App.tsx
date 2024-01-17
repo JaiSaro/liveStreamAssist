@@ -16,6 +16,8 @@ import {
 } from 'react-native-paper';
 import {PostApiMethod} from './utils/AxiosHelper';
 import AppSnackbar from './components/AppSnackbar';
+import LiveStreamVODListPage from './pages/LiveStreamVODListPage';
+import VodPlayer from './pages/VodPlayer';
 
 // import {ScrollView} from 'react-native';
 
@@ -76,7 +78,7 @@ function App(): React.JSX.Element {
             options={() => ({
               headerTitle: props => (
                 <Text variant="labelLarge" {...props}>
-                  Live Stream Assist
+                  Drogo Live Assist
                 </Text>
               ),
             })}
@@ -91,6 +93,11 @@ function App(): React.JSX.Element {
             component={LiveStreamViewerPage}
           />
           <Stack.Screen name="LiveStreamPlayer" component={LiveStreamPlayer} />
+          <Stack.Screen name="VodPlayer" component={VodPlayer} />
+          <Stack.Screen
+            name="LiveStreamVODListPage"
+            component={LiveStreamVODListPage}
+          />
         </Stack.Navigator>
         {/* <Portal>
           <Dialog visible={visible} onDismiss={hideDialog}>
